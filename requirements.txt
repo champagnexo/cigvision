@@ -1,0 +1,5 @@
+ultralytics
+paho-mqtt
+pyyaml
+adafruit-blinka
+Adafruit-Blinka-Raspberry-Pi5-Neopixel
