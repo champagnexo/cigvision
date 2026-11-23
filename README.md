@@ -1,3 +1,4 @@
+(graphic.png)
 # Peuken Stembus runtime (YOLO11)
 
 Counts cigarette butts. A cup holder sits under a camera with a ring light. When something is placed in it, the camera checks if it is a butt. If yes, the counter goes up by one and is sent over MQTT to the screen Pi. Afterwards the servo flips the cup.
