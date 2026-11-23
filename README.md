@@ -20,20 +20,44 @@ Counts cigarette butts. A cup holder sits under a camera with a ring light. When
 | `common.py` | Logger, writes to `../Debug/mylogger.txt` |
 | `config.yaml` | All settings |
 | `prepare_dataset.py` | Crops photos and splits them into train/val for training |
-| `CConfig.py`, `cam_illum.py`, `servo_control.py` | Unchanged from the old code |
+| `CConfig.py`, `cam_illum.py`, `servo_control.py` | Unchanged from the old code (config loader, NeoPixel ring, servo) |
 | `0_takePictures.py` | Take training photos with the real rig |
+| `check_install.py` | Checks libraries, camera, ring light access, broker and model |
+| `../install.sh`, `../requirements.txt` | Installer and Python dependencies |
 
-## Setup (Raspberry Pi 5)
+## Install (Raspberry Pi 5, Raspberry Pi OS 64-bit)
+
+Copy this folder to the Pi, then:
 
 ```bash
-python3 -m venv --system-site-packages venv
-source venv/bin/activate
-pip install ultralytics paho-mqtt pyyaml
+cd peuken-stembus
+chmod +x install.sh
+./install.sh            # add --service to start at boot
+sudo reboot
 ```
 
-`--system-site-packages` is needed so the venv can see `picamera2`.
+The installer:
+1. installs the system packages (picamera2, OpenCV, numpy, gpiozero, lgpio),
+2. creates the folders `Data`, `Debug`, `Dataset`, `Images/Originals/butt|not_butt`,
+3. creates a venv (with access to the system picamera2) and installs `requirements.txt`,
+4. adds a udev rule so the NeoPixel ring works without sudo, and adds your user to the `gpio` and `video` groups,
+5. optionally installs a systemd service (`--service`, sets `headless: True`, starts once `Data/butt_cls.pt` exists),
+6. runs `src_runtime/check_install.py`.
+
+Check the setup at any time:
+
+```bash
+cd src_runtime && ../venv/bin/python check_install.py
+```
+
+Notes:
+- If `/dev/pio0` is missing, update the firmware: `sudo apt full-upgrade -y && sudo rpi-eeprom-update -a && sudo reboot`.
+- Edit the MQTT broker address and credentials in `src_runtime/config.yaml` before the first run.
+- The installer replaces `python3-rpi.gpio` with `python3-rpi-lgpio` (already the default on Pi 5 images). The old RPi.GPIO does not work on the Pi 5.
 
 ## Train the model
+
+Run all commands below from `src_runtime` with `source ../venv/bin/activate`.
 
 1. Take 300+ photos per class with the real rig (same light, camera, distance):
    ```bash
@@ -57,7 +81,8 @@ Class names come from the folder names, so they must be `butt` and `not_butt`.
 ## Run
 
 ```bash
-python runtime.py
+cd src_runtime
+../venv/bin/python runtime.py
 ```
 
 With `headless: False` a preview window opens and ESC stops the program. Set `headless: True` when running without a screen.
