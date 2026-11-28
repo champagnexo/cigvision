@@ -31,7 +31,7 @@ Counts cigarette butts. A cup holder sits under a camera with a ring light. When
 Copy this folder to the Pi, then:
 
 ```bash
-cd peuken-stembus
+cd peuken-mqtt
 chmod +x install.sh
 ./install.sh            # add --service to start at boot
 sudo reboot
